@@ -1,3 +1,12 @@
+# Web application
+node_modules/
+dist/
+.env
+.env.*
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
 # Gradle files
 .gradle/
 build/

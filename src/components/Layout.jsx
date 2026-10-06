@@ -1,0 +1,28 @@
+import { useEffect, useState } from 'react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
+import { ArrowRight, Search, Menu, X, Heart, Instagram, Linkedin, Youtube, Facebook } from 'lucide-react';
+import { useFavorites } from '../state/Favorites';
+import { Newsletter } from './Forms';
+import { categories, locations } from '../data';
+
+export function Brand() {
+  return <Link to="/" className="brand" aria-label="Dubai House home"><svg viewBox="0 0 32 42" fill="none" aria-hidden="true"><path d="M3 34V13M9 39V6M15 42V1M21 36V10M27 31V17" stroke="currentColor" strokeWidth="1.5" /><path d="M9 34V13M15 35V8" stroke="currentColor" strokeWidth="3" /></svg><span><strong>DUBAI HOUSE</strong><small>PROPERTIES FOR A BRIGHTER TOMORROW</small></span></Link>;
+}
+export function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
+  const { pathname } = useLocation();
+  const { favorites } = useFavorites();
+  useEffect(() => { const update = () => setScrolled(window.scrollY > 40); update(); window.addEventListener('scroll', update, { passive: true }); return () => window.removeEventListener('scroll', update); }, []);
+  useEffect(() => setOpen(false), [pathname]);
+  useEffect(() => { if (!open) return; const close = event => { if (event.key === 'Escape') setOpen(false); }; document.addEventListener('keydown', close); return () => document.removeEventListener('keydown', close); }, [open]);
+  const links = [['/', 'Home'], ['/properties', 'Properties'], ['/about', 'About'], ['/invest', 'Invest'], ['/blog', 'Blog'], ['/contact', 'Contact']];
+  return <header className={`navbar ${scrolled || pathname !== '/' || open ? 'solid' : ''}`}><div className="nav-inner"><Brand /><nav className="desktop-nav" aria-label="Main navigation">{links.map(([to, label]) => <NavLink key={to} to={to} end={to === '/'}>{label}</NavLink>)}</nav><div className="nav-actions"><Link className="icon-button nav-search" to="/properties" aria-label="Search properties"><Search size={18} /></Link><Link className="icon-button favorite-nav" to="/favorites" aria-label={`Saved properties (${favorites.length})`}><Heart size={17} />{favorites.length > 0 && <span>{favorites.length}</span>}</Link><Link to="/contact" className="button light nav-cta">Talk to an Expert <ArrowRight size={15} /></Link><button className="icon-button menu-button" onClick={() => setOpen(!open)} aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open} aria-controls="mobile-navigation">{open ? <X /> : <Menu />}</button></div></div>{open && <nav className="mobile-menu" id="mobile-navigation" aria-label="Mobile navigation">{links.map(([to, label]) => <NavLink key={to} to={to} end={to === '/'}>{label}<ArrowRight size={18} /></NavLink>)}<Link to="/favorites">Your collection ({favorites.length})<Heart size={18} /></Link><Link className="button light" to="/contact">Talk to an Expert <ArrowRight size={18} /></Link></nav>}</header>;
+}
+export function TextLink({ to, children, light = false, ...rest }) { return <Link className={`text-link ${light ? 'on-dark' : ''}`} to={to} {...rest}>{children}<ArrowRight size={16} strokeWidth={1.4} /></Link>; }
+export function SectionHeading({ eyebrow, title, subtitle, to, action = 'View All' }) { return <div className="section-heading"><div>{eyebrow && <p className="eyebrow">{eyebrow}</p>}<h2>{title}</h2>{subtitle && <p className="section-subtitle">{subtitle}</p>}</div>{to && <TextLink to={to}>{action}</TextLink>}</div>; }
+export function Footer() {
+  const [social, setSocial] = useState('');
+  return <footer className="footer"><div className="footer-top"><div className="footer-brand"><Brand /><p>Connecting people to exceptional properties<br />in one of the world's most inspiring cities.</p><div className="socials">{[[Instagram, 'Instagram'], [Linkedin, 'LinkedIn'], [Youtube, 'YouTube'], [Facebook, 'Facebook']].map(([Icon, name]) => <button key={name} className="icon-button" aria-label={name} onClick={() => setSocial(social === name ? '' : name)}><Icon size={16} strokeWidth={1.5} /></button>)}</div>{social && <p className="social-note" role="status">Our official {social} channel is coming soon.</p>}</div><div className="footer-column"><h3>Quick Links</h3>{[['/', 'Home'], ['/properties', 'Properties'], ['/about', 'About Us'], ['/invest', 'Invest'], ['/blog', 'Blog'], ['/contact', 'Contact']].map(([to, text]) => <Link key={to} to={to}>{text}</Link>)}</div><div className="footer-column"><h3>Properties</h3>{categories.map(c => <Link key={c.type} to={`/properties?type=${c.type}`}>{c.name}</Link>)}</div><div className="footer-column"><h3>Locations</h3>{locations.slice(0, 5).map(location => <Link key={location} to={`/properties?location=${encodeURIComponent(location)}`}>{location}</Link>)}</div><div className="footer-newsletter"><h3>Subscribe to Our Newsletter</h3><p>Get the latest property updates<br />and investment insights.</p><Newsletter /></div></div><div className="footer-bottom"><p>© 2026 Dubai House. All rights reserved.</p><div><Link to="/privacy">Privacy Policy</Link><Link to="/terms">Terms & Conditions</Link></div></div><p className="demo-note">Preview portfolio: properties, client stories, and market figures are illustrative. Confirm availability and business details before transacting.</p></footer>;
+}
+export function NotFound() { return <section className="empty-state page-offset"><p className="eyebrow">A NEW DIRECTION</p><h1>This address isn’t on the map.</h1><p>Let’s help you find your way to somewhere exceptional.</p><Link className="button dark" to="/">Back to Home <ArrowRight size={18} /></Link></section>; }
